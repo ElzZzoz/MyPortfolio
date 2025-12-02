@@ -22,9 +22,11 @@ export default function MainLayout() {
       */}
       <div
         className={`
-          ${shouldHideProfileOnMobile ? 'hidden lg:block' : ''} 
-          sticky top-1 h-fit z-30
-        `}
+    ${shouldHideProfileOnMobile ? 'hidden lg:block' : 'block'} 
+    sticky lg:top-1 h-fit z-30
+    lg:sticky lg:top-1
+    sm:relative
+  `}
       >
         <Profile />
       </div>
