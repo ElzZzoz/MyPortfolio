@@ -62,7 +62,7 @@ function App() {
     // ⚠️ REMOVED <Router> wrapper here because it is already in main.tsx
     <main
       className='flex flex-col container
-   mx-auto p-10 max-w-4xl lg:pr-10 lg:max-w-6xl'
+   mx-auto p-5 max-w-4xl lg:pr-10 lg:max-w-6xl'
     >
       <ScrollToTop />
       <Toaster
