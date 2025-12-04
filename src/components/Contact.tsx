@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'motion/react';
 import emailjs from '@emailjs/browser';
 import { fadeUp } from '@/lib/animations';
+
 import {
   Form,
   FormControl,
@@ -14,9 +15,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import SectionHeader from './SectionHeader';
+import toast from 'react-hot-toast';
 
-// REPLACE THESE WITH YOUR ACTUAL KEYS
-const SERVICE_ID = 'service_087kl1h';
+// EmailJS config (MAKE SURE THESE ARE CORRECT)
+const SERVICE_ID = 'service_6sy5aff';
 const TEMPLATE_ID = 'template_up2l64i';
 const PUBLIC_KEY = 'gDC8nXW2LlPko0yt_';
 
@@ -25,7 +27,7 @@ type ContactFormValues = {
   company: string;
   email: string;
   phone: string;
-  subject: string; // 1. Added type
+  subject: string; // maps to title
   message: string;
 };
 
@@ -38,33 +40,35 @@ export default function Contact() {
       company: '',
       email: '',
       phone: '',
-      subject: '', // 2. Added default value
+      subject: '',
       message: '',
     },
   });
 
   const onSubmit = async (values: ContactFormValues) => {
     setIsLoading(true);
+
     try {
       await emailjs.send(
         SERVICE_ID,
         TEMPLATE_ID,
         {
-          name: values.name,
-          company: values.company,
-          email: values.email,
-          phone: values.phone,
-          subject: values.subject, // 3. Send subject to EmailJS
-          message: values.message,
+          title: values.subject, // EmailJS {{title}}
+          name: values.name, // EmailJS {{name}}
+          email: values.email, // EmailJS {{email}}
+          message: values.message, // EmailJS {{message}}
+
+          // Optional fields: only work if added in EmailJS template
+          // company: values.company,
+          // phone: values.phone,
         },
         PUBLIC_KEY,
       );
 
-      alert('Message sent successfully!');
+      toast.success('Message sent!');
       form.reset();
     } catch (error) {
-      console.error('Failed to send email:', error);
-      alert('Failed to send message. Please try again later.');
+      toast.error(`Something went wrong ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
     }
@@ -76,26 +80,27 @@ export default function Contact() {
       whileInView='visible'
       viewport={{ once: true, amount: 0.8 }}
       variants={fadeUp}
-      className='mt-30 scroll-mt-10'
       id='contact'
+      className='mt-30 scroll-mt-10'
     >
       <SectionHeader
         subtitle='Contact'
-        title={`Let's make something awesome together`}
+        title="Let's make something awesome together"
       />
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className='w-full mx-auto space-y-4 mt-10'
         >
-          {/* Top Grid: Name, Company, Email, Phone */}
+          {/* TOP GRID — Name, Company, Email, Phone */}
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <FormField
               control={form.control}
               name='name'
               rules={{ required: 'Name is required' }}
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem>
                   <FormControl>
                     <Input
                       placeholder='Your name'
@@ -107,11 +112,12 @@ export default function Contact() {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name='company'
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem>
                   <FormControl>
                     <Input
                       placeholder='Company name'
@@ -119,10 +125,10 @@ export default function Contact() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name='email'
@@ -134,7 +140,7 @@ export default function Contact() {
                 },
               }}
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem>
                   <FormControl>
                     <Input
                       type='email'
@@ -147,11 +153,12 @@ export default function Contact() {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name='phone'
               render={({ field }) => (
-                <FormItem className='w-full'>
+                <FormItem>
                   <FormControl>
                     <Input
                       type='tel'
@@ -160,19 +167,18 @@ export default function Contact() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          {/* 4. Subject Field (Full Width) */}
+          {/* SUBJECT */}
           <FormField
             control={form.control}
             name='subject'
             rules={{ required: 'Subject is required' }}
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem>
                 <FormControl>
                   <Input
                     placeholder='Subject'
@@ -185,16 +191,16 @@ export default function Contact() {
             )}
           />
 
-          {/* Message Field */}
+          {/* MESSAGE */}
           <FormField
             control={form.control}
             name='message'
             rules={{ required: 'Message is required' }}
             render={({ field }) => (
-              <FormItem className='w-full'>
+              <FormItem>
                 <FormControl>
                   <Textarea
-                    placeholder='Write your message ...'
+                    placeholder='Write your message...'
                     className='h-36 border-0'
                     {...field}
                   />
